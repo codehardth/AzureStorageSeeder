@@ -3,7 +3,7 @@
 using Azure.Data.Tables;
 using CommandLine;
 
-namespace AzureTableStorageSeeder.Console;
+namespace AzureTableStorageSeeder.Tool;
 
 internal class Options
 {

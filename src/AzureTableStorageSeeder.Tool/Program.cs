@@ -1,5 +1,5 @@
 ﻿using AzureTableStorageSeeder;
-using AzureTableStorageSeeder.Console;
+using AzureTableStorageSeeder.Tool;
 using CommandLine;
 using Microsoft.Extensions.Logging;
 
