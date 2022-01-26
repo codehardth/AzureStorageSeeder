@@ -26,4 +26,5 @@ JSON file must be array of simple object (since Azure Table Storage only support
 | Name    | Required | Default Value | Description                               |
 |---------|----------|---------------|-------------------------------------------|
 | directory     | yes      | -             | Seed files directory. |
-| connectionString | yes       | -             | Azure Storage connection string.                 |
+| connectionString | yes       | -             | Azure Storage connection string.|
+| mode | no       | Replace             | Update mode strategy, supported values are (Replace, Merge).|
