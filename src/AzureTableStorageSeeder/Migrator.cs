@@ -7,9 +7,9 @@ namespace AzureTableStorageSeeder;
 public sealed class Migrator : IMigrator
 {
     private readonly MigrationOptions options;
-    private readonly ILogger<Migrator> logger;
+    private readonly ILogger<Migrator>? logger;
 
-    public Migrator(MigrationOptions options, ILogger<Migrator> logger)
+    public Migrator(MigrationOptions options, ILogger<Migrator>? logger = null)
     {
         this.options = options;
         this.logger = logger;
@@ -36,7 +36,7 @@ public sealed class Migrator : IMigrator
 
             var tableName = fileName.Replace(".json", "");
 
-            logger.LogInformation($"Starting migrate data for {tableName}.");
+            logger?.LogInformation($"Starting migrate data for {tableName}.");
 
             var table = new TableClient(options.connectionString, tableName);
 
@@ -50,11 +50,11 @@ public sealed class Migrator : IMigrator
                 {
                     await table.UpsertEntityAsync(entity, options.Mode, cancellationToken);
 
-                    logger.LogInformation($"PartitionKey {entity.PartitionKey} RowKey {entity.RowKey} inserted.");
+                    logger?.LogInformation($"PartitionKey {entity.PartitionKey} RowKey {entity.RowKey} inserted.");
                 }
                 catch (Azure.RequestFailedException ex)
                 {
-                    logger.LogError(ex.Message);
+                    logger?.LogError(ex.Message);
 
                     throw;
                 }
