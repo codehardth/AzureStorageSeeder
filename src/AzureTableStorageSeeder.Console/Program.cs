@@ -16,7 +16,7 @@ public class Program
     {
         using var logger = LoggerFactory.Create(builder => builder.AddConsole());
 
-        var migrateOptions = new MigrationOptions(options.ConnectionString, options.Directory);
+        var migrateOptions = new MigrationOptions(options.ConnectionString, options.Directory, options.Mode);
 
         var migrator = new Migrator(migrateOptions, logger.CreateLogger<Migrator>());
 

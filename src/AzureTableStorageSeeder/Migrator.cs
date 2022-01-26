@@ -48,7 +48,7 @@ public sealed class Migrator : IMigrator
             {
                 try
                 {
-                    await table.AddEntityAsync(entity, cancellationToken);
+                    await table.UpsertEntityAsync(entity, options.Mode, cancellationToken);
 
                     logger.LogInformation($"PartitionKey {entity.PartitionKey} RowKey {entity.RowKey} inserted.");
                 }
