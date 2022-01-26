@@ -15,6 +15,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Install dependencies
-      run: dotnet restore ./src/AzureTableStorageSeeder.Console
+      run: dotnet restore ./src/AzureTableStorageSeeder.Tool
     - name: Build
-      run: dotnet build ./src/AzureTableStorageSeeder.Console --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
+      run: dotnet build ./src/AzureTableStorageSeeder.Tool --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
