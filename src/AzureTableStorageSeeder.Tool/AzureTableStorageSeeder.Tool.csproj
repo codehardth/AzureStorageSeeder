@@ -5,12 +5,12 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<Description>A tool to apply seed data from JSON files to Azure Table Storage.</Description>
 		<Copyright>Copyright © Code(Hard); 2022</Copyright>
 		<PackageProjectUrl>https://github.com/codehardth/AzureStorageSeeder</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/codehardth/AzureStorageSeeder</RepositoryUrl>
-		<PackageReleaseNotes>Add missing tool command name.</PackageReleaseNotes>
+		<PackageReleaseNotes>Add support for EDM type infer from JSON value.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<PackAsTool>true</PackAsTool>
