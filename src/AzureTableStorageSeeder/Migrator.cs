@@ -1,6 +1,6 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace AzureTableStorageSeeder;
 
@@ -38,7 +38,7 @@ public sealed class Migrator : IMigrator
 
             logger?.LogInformation($"Starting migrate data for {tableName}.");
 
-            var table = new TableClient(options.connectionString, tableName);
+            var table = new TableClient(options.ConnectionString, tableName);
 
             await table.CreateIfNotExistsAsync(cancellationToken);
 
@@ -59,6 +59,8 @@ public sealed class Migrator : IMigrator
                     throw;
                 }
             }
+
+            logger?.LogInformation($"{tableName} migration finished.");
         }
     }
 
@@ -66,30 +68,58 @@ public sealed class Migrator : IMigrator
     {
         var content = File.ReadAllText(file);
 
-        var values = Flatten(content);
+        var pairs = Flatten(content);
 
-        if (values == null || !values.Any())
+        if (pairs == null || !pairs.Any())
         {
             yield break;
         }
 
-        foreach (var value in values)
+        foreach (var pair in pairs)
         {
             var entity = new TableEntity();
 
-            foreach (var key in value.Keys)
+            foreach (var key in pair.Keys)
             {
-                entity.Add(key, value[key]);
+                var value = GetJsonElementValue(key, pair[key]);
+
+                entity.Add(key, value);
             }
 
             yield return entity;
         }
 
-        static Dictionary<string, object>[]? Flatten(string json)
+        static Dictionary<string, JsonElement>[]? Flatten(string json)
         {
-            var values = JsonConvert.DeserializeObject<Dictionary<string, object>[]>(json);
+            var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>[]>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = false,
+            });
 
             return values;
+        }
+
+        static object? GetJsonElementValue(string key, JsonElement jsonElement)
+        {
+            var valueKind = jsonElement.ValueKind;
+
+            var normalizedKey = key.ToLowerInvariant();
+
+            if ((normalizedKey == "partitionkey" || normalizedKey == "rowkey") && valueKind != JsonValueKind.String)
+            {
+                throw new InvalidOperationException($"Expects '{key}' to be String but {valueKind} was given.");
+            }
+
+            return valueKind switch
+            {
+                JsonValueKind.String => jsonElement.ParseString(),
+                JsonValueKind.Number => jsonElement.ParseNumber(),
+                JsonValueKind.True => jsonElement.GetBoolean(),
+                JsonValueKind.False => jsonElement.GetBoolean(),
+                JsonValueKind.Null => null,
+                JsonValueKind.Undefined => null,
+                _ => throw new NotSupportedException($"'{valueKind}' is not supported in this context."),
+            };
         }
     }
 }
