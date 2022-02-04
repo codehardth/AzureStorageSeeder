@@ -133,3 +133,7 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+.vs/
+/src/AzureTableStorageSeeder.Tool/Properties/launchSettings.json
+/src/.vs/AzureTableStorageSeeder

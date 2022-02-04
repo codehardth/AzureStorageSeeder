@@ -17,9 +17,16 @@ internal static class Parser
         return long.Parse(text);
     }
 
-    public static object ParseString(this JsonElement jsonElement)
+    public static object ParseString(this JsonElement jsonElement, string key)
     {
         var text = jsonElement.GetString()!;
+
+        var normalizedKey = key.ToLowerInvariant();
+
+        if ((normalizedKey == "partitionkey" || normalizedKey == "rowkey"))
+        {
+            return text;
+        }
 
         if (Guid.TryParse(text, out var guid))
         {

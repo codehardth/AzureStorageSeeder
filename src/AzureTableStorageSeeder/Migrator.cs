@@ -24,6 +24,13 @@ public sealed class Migrator : IMigrator
             return;
         }
 
+        var transactionType = options.Mode switch
+        {
+            TableUpdateMode.Merge => TableTransactionActionType.UpsertMerge,
+            TableUpdateMode.Replace => TableTransactionActionType.UpsertReplace,
+            _ => throw new NotSupportedException(),
+        };
+
         foreach (var file in files)
         {
             var fileInfo = new FileInfo(file);
@@ -38,29 +45,17 @@ public sealed class Migrator : IMigrator
 
             logger?.LogInformation($"Starting migrate data for {tableName}.");
 
-            var table = new TableClient(options.ConnectionString, tableName);
+            var client = new TableClient(options.ConnectionString, tableName);
 
-            await table.CreateIfNotExistsAsync(cancellationToken);
+            await client.CreateIfNotExistsAsync(cancellationToken);
 
             var entities = GetTableEntities(file);
 
-            foreach (var entity in entities)
-            {
-                try
-                {
-                    await table.UpsertEntityAsync(entity, options.Mode, cancellationToken);
+            var batch = entities.Select(entity => new TableTransactionAction(transactionType, entity));
 
-                    logger?.LogInformation($"PartitionKey {entity.PartitionKey} RowKey {entity.RowKey} inserted.");
-                }
-                catch (Azure.RequestFailedException ex)
-                {
-                    logger?.LogError(ex.Message);
+            await client.SubmitTransactionAsync(batch, cancellationToken);
 
-                    throw;
-                }
-            }
-
-            logger?.LogInformation($"{tableName} migration finished.");
+            logger?.LogInformation($"{tableName} migrated succesfully.");
         }
     }
 
@@ -83,6 +78,11 @@ public sealed class Migrator : IMigrator
             {
                 var value = GetJsonElementValue(key, pair[key]);
 
+                if (value == null)
+                {
+                    continue;
+                }
+
                 entity.Add(key, value);
             }
 
@@ -103,16 +103,9 @@ public sealed class Migrator : IMigrator
         {
             var valueKind = jsonElement.ValueKind;
 
-            var normalizedKey = key.ToLowerInvariant();
-
-            if ((normalizedKey == "partitionkey" || normalizedKey == "rowkey") && valueKind != JsonValueKind.String)
-            {
-                throw new InvalidOperationException($"Expects '{key}' to be String but {valueKind} was given.");
-            }
-
             return valueKind switch
             {
-                JsonValueKind.String => jsonElement.ParseString(),
+                JsonValueKind.String => jsonElement.ParseString(key),
                 JsonValueKind.Number => jsonElement.ParseNumber(),
                 JsonValueKind.True => jsonElement.GetBoolean(),
                 JsonValueKind.False => jsonElement.GetBoolean(),
