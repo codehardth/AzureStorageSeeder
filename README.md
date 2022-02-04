@@ -1,7 +1,9 @@
 # AzureStorageSeeder
 A tool to apply seed data from JSON files to Azure Table Storage.
 
-### Prerequisite
+[![nuget](https://img.shields.io/nuget/v/AzureTableStorageSeeder.Tool.svg)](https://www.nuget.org/packages/AzureTableStorageSeeder.Tool/1.0.1/)
+
+### Prerequisites
 - [.NET 6 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 ### Supported OS
@@ -13,13 +15,14 @@ A tool to apply seed data from JSON files to Azure Table Storage.
 simply run the tool by
 
 ```
-dotnet ./AzureTableStorageSeeder.Console.dll --directory "~/some/working/directory" --connectionString "UseDevelopmentStorage=true;"
+azureseeder --directory "~/some/working/directory" --connectionString "UseDevelopmentStorage=true;"
 ```
 
 above command will result in searching all JSON files in given directory and apply each file to Azure Table Storage with file name as a table name.
 
-### Limitation
-JSON file must be array of simple object (since Azure Table Storage only supports simple data type) more information [here](https://docs.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Table-Service-Data-Model#property-types).
+### Limitations
+- Partition Key and Row Key **must** be a String.
+- JSON file must be array of simple object (since Azure Table Storage only supports simple data type) more information [here](https://docs.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Table-Service-Data-Model#property-types).
 
 ### Supported command line arguments
 
