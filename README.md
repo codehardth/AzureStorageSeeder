@@ -23,6 +23,7 @@ above command will result in searching all JSON files in given directory and app
 ### Limitations
 - Partition Key and Row Key **must** be a String.
 - JSON file must be array of simple object (since Azure Table Storage only supports simple data type) more information [here](https://docs.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Table-Service-Data-Model#property-types).
+- JSON property name is case-sensitive.
 
 ### Supported command line arguments
 
