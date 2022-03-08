@@ -1,6 +1,7 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using AzureTableStorageSeeder.Extensions;
 
 namespace AzureTableStorageSeeder;
 
@@ -53,7 +54,10 @@ public sealed class Migrator : IMigrator
 
             var batch = entities.Select(entity => new TableTransactionAction(transactionType, entity));
 
-            await client.SubmitTransactionAsync(batch, cancellationToken);
+            foreach (var chunk in batch.Chunk(100))
+            {
+                await client.SubmitTransactionAsync(chunk, cancellationToken);
+            }
 
             logger?.LogInformation($"{tableName} migrated succesfully.");
         }
